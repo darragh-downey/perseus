@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/hooks';
 import { Character, CharacterArcPoint } from '../../contexts/AppContext';
 import { storageService } from '../../services';
+import { RadarChart } from './visualizations/RadarChart';
+import { User, TrendingUp, Heart, Activity } from 'lucide-react';
 
 // Emotional dimensions for character development
 const EMOTIONAL_DIMENSIONS = [
@@ -131,26 +133,35 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Character Arc Tracker</h2>
-          <p className="text-gray-600 dark:text-gray-400">Track emotional growth across story beats</p>
+      <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl p-6 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Character Arc Tracker</h2>
+            <p className="text-indigo-50">Track emotional growth across story beats</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+              <Activity className="w-5 h-5" />
+              <span className="font-medium">{getArcCompletion()}% Complete</span>
+            </div>
+            <button
+              onClick={saveCharacterArc}
+              className="btn-primary shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Save Arc
+            </button>
+          </div>
         </div>
-        <button
-          onClick={saveCharacterArc}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Save Arc
-        </button>
       </div>
 
       {/* Character Selection */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+      <div className="card">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Character
             </label>
             <select
@@ -159,7 +170,7 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
                 const character = state.characters.find(c => c.id === e.target.value);
                 setSelectedCharacter(character || null);
               }}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="input-primary"
             >
               {state.characters.map(character => (
                 <option key={character.id} value={character.id}>
@@ -170,7 +181,7 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Want (External Goal)
             </label>
             <input
@@ -178,12 +189,12 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
               value={selectedCharacter.want || ''}
               onChange={(e) => updateWantNeed('want', e.target.value)}
               placeholder="What does the character want?"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="input-primary"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Need (Internal Lesson)
             </label>
             <input
@@ -191,20 +202,15 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
               value={selectedCharacter.need || ''}
               onChange={(e) => updateWantNeed('need', e.target.value)}
               placeholder="What does the character need to learn?"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="input-primary"
             />
           </div>
-        </div>
-
-        <div className="mt-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">{getArcCompletion()}%</div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">Arc Development Complete</div>
         </div>
       </div>
 
       {/* Emotional Arc Tracking */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Emotional Development</h3>
+      <div className="card">
+        <h3 className="text-lg font-semibold text-text-primary mb-4">Emotional Development</h3>
         
         <div className="space-y-6">
           {CHARACTER_BEATS.map((beat, index) => {
@@ -212,10 +218,10 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
             const arcPoint = arcData[beatId];
             
             return (
-              <div key={beatId} className="border-2 border-gray-200 dark:border-gray-600 rounded-lg p-4">
+              <div key={beatId} className="border-2 border-border-light dark:border-border-dark rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                    <h4 className="font-semibold text-text-primary">
                       {beat.name} ({beat.percentage}%)
                     </h4>
                   </div>
@@ -225,7 +231,7 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   {EMOTIONAL_DIMENSIONS.map((dimension) => (
                     <div key={dimension}>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      <label className="block text-xs font-medium text-text-secondary mb-1">
                         {dimension}
                       </label>
                       <input
@@ -240,9 +246,9 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
                           };
                           updateArcPoint(beatId, newEmotionalState, arcPoint?.notes);
                         }}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        className="w-full h-2 bg-surface-light rounded-lg appearance-none cursor-pointer dark:bg-surface-dark"
                       />
-                      <div className="text-center text-xs text-gray-500 mt-1">
+                      <div className="text-center text-xs text-text-secondary mt-1">
                         {arcPoint?.emotionalState[dimension] || 0}
                       </div>
                     </div>
@@ -260,7 +266,7 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
                       e.target.value
                     );
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm resize-none"
+                  className="input-primary text-sm resize-none"
                   rows={2}
                 />
               </div>
@@ -270,12 +276,12 @@ export const CharacterArcTracker: React.FC<CharacterArcTrackerProps> = ({ projec
       </div>
 
       {/* Arc Visualization Placeholder */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Character Growth Visualization</h3>
-        <div className="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+      <div className="card">
+        <h3 className="text-lg font-semibold text-text-primary mb-4">Character Growth Visualization</h3>
+        <div className="h-64 flex items-center justify-center border-2 border-dashed border-border-light dark:border-border-dark rounded-lg">
           <div className="text-center">
-            <div className="text-gray-500 dark:text-gray-400 mb-2">Radar Chart Visualization</div>
-            <p className="text-sm text-gray-400">Character emotional growth across story beats</p>
+            <div className="text-text-secondary mb-2">Radar Chart Visualization</div>
+            <p className="text-sm text-text-secondary">Character emotional growth across story beats</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/hooks';
 import { Document } from '../../contexts/AppContext';
+import { analyticsService, TextAnalytics } from '../../services/analytics';
 import { 
   X, 
   Target, 
@@ -33,10 +34,38 @@ export default function WorkflowPanel({ document, onDocumentUpdate, onClose }: W
   const [newNote, setNewNote] = useState('');
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [newGoal, setNewGoal] = useState({ type: 'word-count', target: 1000, deadline: '' });
+  const [textAnalytics, setTextAnalytics] = useState<TextAnalytics | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const wordCount = document.content.trim() ? document.content.trim().split(/\s+/).length : 0;
-  const charCount = document.content.length;
-  const readingTime = Math.ceil(wordCount / 200);
+  // Use analytics from Rust backend or fallback to local calculation
+  const wordCount = textAnalytics?.word_count ?? (document.content.trim() ? document.content.trim().split(/\s+/).length : 0);
+  const charCount = textAnalytics?.character_count ?? document.content.length;
+  const readingTime = textAnalytics?.reading_time_minutes ?? Math.ceil(wordCount / 200);
+
+  // Load text analytics from Rust backend
+  useEffect(() => {
+    const loadTextAnalytics = async () => {
+      if (!document.content.trim()) {
+        setTextAnalytics(null);
+        return;
+      }
+
+      setIsAnalyzing(true);
+      try {
+        const analytics = await analyticsService.analyzeText(document.content);
+        setTextAnalytics(analytics);
+      } catch (error) {
+        console.error('Failed to analyze text:', error);
+        // Fallback to local calculation
+        setTextAnalytics(null);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    };
+
+    const timeoutId = setTimeout(loadTextAnalytics, 500); // Debounce analysis
+    return () => clearTimeout(timeoutId);
+  }, [document.content]);
 
   const statusOptions = [
     { value: 'draft', label: 'Draft', icon: Circle, color: 'text-gray-500' },

@@ -92,69 +92,75 @@ export default function CharacterForm({ onClose, characterId }: CharacterFormPro
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="card shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {isEditing ? 'Edit Character' : 'Add Character'}
-          </h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">C</span>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {isEditing ? 'Edit Character' : 'Add Character'}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="btn btn-ghost btn-sm"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="form-group">
+            <label className="form-label">
               Name *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input input-primary w-full"
               placeholder="Character name"
               required
+              autoFocus
             />
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="form-group">
+            <label className="form-label">
               Description
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
-              className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="textarea w-full"
               placeholder="Brief description of the character"
             />
           </div>
 
           {/* Color */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <Palette className="w-4 h-4 inline mr-1" />
+          <div className="form-group">
+            <label className="form-label">
+              <Palette className="w-4 h-4 inline mr-2" />
               Color
             </label>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <div className="flex flex-wrap gap-2">
                 {colorOptions.map(color => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, color }))}
-                    className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    className={`w-10 h-10 rounded-lg border-2 transition-all hover:scale-110 ${
                       formData.color === color
-                        ? 'border-gray-900 dark:border-white scale-110'
-                        : 'border-gray-300 dark:border-gray-600 hover:scale-105'
+                        ? 'border-gray-900 dark:border-white scale-110 ring-2 ring-blue-500/50'
+                        : 'border-gray-300 dark:border-gray-600'
                     }`}
                     style={{ backgroundColor: color }}
                   />
@@ -164,15 +170,15 @@ export default function CharacterForm({ onClose, characterId }: CharacterFormPro
                 type="color"
                 value={formData.color}
                 onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
-                className="w-8 h-8 rounded border-none cursor-pointer"
+                className="w-10 h-10 rounded-lg border-2 border-gray-300 dark:border-gray-600 cursor-pointer"
               />
             </div>
           </div>
 
           {/* Traits */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Traits
+          <div className="form-group">
+            <label className="form-label">
+              Character Traits
             </label>
             
             {/* Existing Traits */}
@@ -181,19 +187,21 @@ export default function CharacterForm({ onClose, characterId }: CharacterFormPro
                 {Object.entries(formData.traits).map(([key, value]) => (
                   <div
                     key={key}
-                    className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2"
+                    className="card-sm bg-blue-50 dark:bg-blue-900/20 p-3"
                   >
-                    <div className="text-sm">
-                      <span className="font-medium text-blue-700 dark:text-blue-300">{key}:</span>
-                      <span className="text-blue-600 dark:text-blue-400 ml-1">{String(value)}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm">
+                        <span className="font-medium text-blue-700 dark:text-blue-300">{key}:</span>
+                        <span className="text-blue-600 dark:text-blue-400 ml-1">{String(value)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTrait(key)}
+                        className="btn btn-ghost btn-sm p-1 text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTrait(key)}
-                      className="text-red-500 hover:text-red-700 p-1"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -206,20 +214,20 @@ export default function CharacterForm({ onClose, characterId }: CharacterFormPro
                 value={newTrait.key}
                 onChange={(e) => setNewTrait(prev => ({ ...prev, key: e.target.value }))}
                 placeholder="Trait name"
-                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input input-secondary flex-1"
               />
               <input
                 type="text"
                 value={newTrait.value}
                 onChange={(e) => setNewTrait(prev => ({ ...prev, value: e.target.value }))}
                 placeholder="Value"
-                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input input-secondary flex-1"
               />
               <button
                 type="button"
                 onClick={handleAddTrait}
                 disabled={!newTrait.key.trim() || !newTrait.value.trim()}
-                className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
+                className="btn btn-primary btn-sm"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -227,17 +235,17 @@ export default function CharacterForm({ onClose, characterId }: CharacterFormPro
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn btn-outline"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              className="btn btn-primary"
             >
               {isEditing ? 'Update' : 'Create'} Character
             </button>

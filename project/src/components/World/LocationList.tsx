@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useApp } from '../../contexts/hooks';
-import { Edit2, Trash2, MapPin, Search, Filter, Plus, Link } from 'lucide-react';
+import { Edit2, Trash2, MapPin, Search, Filter, Link } from 'lucide-react';
 import { storageService } from '../../services/storage';
 
 export default function LocationList() {
   const { state, dispatch } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBy, setFilterBy] = useState<'all' | 'city' | 'building' | 'region' | 'landmark' | 'natural' | 'other'>('all');
-  const [editingLocation, setEditingLocation] = useState<string | null>(null);
 
   const handleDeleteLocation = async (locationId: string) => {
     if (!confirm('Are you sure you want to delete this location? This will also remove all connections to it.')) {
@@ -78,15 +77,15 @@ export default function LocationList() {
 
   if (state.locations.length === 0) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-gray-400 dark:text-gray-500 mb-4">
+      <div className="h-full flex items-center justify-center bg-surface-light dark:bg-surface-dark">
+        <div className="text-center animate-fadeIn">
+          <div className="text-text-secondary dark:text-text-secondary-dark mb-4">
             <MapPin className="w-16 h-16 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-medium text-text-primary dark:text-text-primary-dark mb-2">
             No Locations Yet
           </h3>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-text-secondary dark:text-text-secondary-dark">
             Create your first location to start building your story world.
           </p>
         </div>
@@ -95,29 +94,44 @@ export default function LocationList() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
+    <div className="h-full flex flex-col bg-white dark:bg-surface-dark">
+      {/* Header */}
+      <div className="p-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+        <div className="flex items-center space-x-3">
+          <div className="bg-white/20 rounded-lg p-2">
+            <MapPin className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">Locations</h2>
+            <p className="text-emerald-100 text-sm">
+              {state.locations.length} location{state.locations.length !== 1 ? 's' : ''} in your world
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Filters */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-secondary dark:text-text-secondary-dark" />
             <input
               type="text"
               placeholder="Search locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-secondary w-full pl-10"
             />
           </div>
 
           {/* Filter */}
           <div className="flex items-center space-x-2">
-            <Filter className="w-4 h-4 text-gray-400" />
+            <Filter className="w-4 h-4 text-text-secondary dark:text-text-secondary-dark" />
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value as any)}
-              className="bg-gray-100 dark:bg-gray-700 border-none rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-secondary"
             >
               <option value="all">All Types</option>
               <option value="city">Cities</option>
@@ -135,7 +149,7 @@ export default function LocationList() {
       <div className="flex-1 overflow-auto p-4">
         {filteredLocations.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-text-secondary dark:text-text-secondary-dark">
               {searchQuery || filterBy !== 'all' ? 'No locations match your filters' : 'No locations found'}
             </p>
           </div>
@@ -148,24 +162,23 @@ export default function LocationList() {
               return (
                 <div
                   key={location.id}
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow"
+                  className="card card-interactive animate-slideUp hover:shadow-lg"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg"
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg shadow-sm"
                         style={{ backgroundColor: location.color || getTypeColor(location.type) }}
                       >
                         {getTypeIcon(location.type)}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                        <h3 className="font-semibold text-text-primary dark:text-text-primary-dark">
                           {location.name}
                         </h3>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
-                          <span className="capitalize">{location.type}</span>
-                          <span>•</span>
+                        <div className="flex items-center space-x-2 text-xs text-text-secondary dark:text-text-secondary-dark">
+                          <span className="badge badge-secondary capitalize">{location.type}</span>
                           <div className="flex items-center space-x-1">
                             <Link className="w-3 h-3" />
                             <span>{connections} connection{connections !== 1 ? 's' : ''}</span>
@@ -176,8 +189,8 @@ export default function LocationList() {
                     
                     <div className="flex items-center space-x-1">
                       <button
-                        onClick={() => setEditingLocation(location.id)}
-                        className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
+                        onClick={() => {/* Edit location - could open form */}}
+                        className="p-2 text-text-secondary hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
                         title="Edit Location"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -185,7 +198,7 @@ export default function LocationList() {
                       
                       <button
                         onClick={() => handleDeleteLocation(location.id)}
-                        className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
+                        className="p-2 text-text-secondary hover:text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-900/20 rounded-lg transition-all"
                         title="Delete Location"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -195,7 +208,7 @@ export default function LocationList() {
 
                   {/* Description */}
                   {location.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                    <p className="text-sm text-text-secondary dark:text-text-secondary-dark mb-3 line-clamp-2">
                       {location.description}
                     </p>
                   )}
@@ -203,18 +216,18 @@ export default function LocationList() {
                   {/* Properties */}
                   {Object.keys(location.properties).length > 0 && (
                     <div className="mb-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Properties</div>
+                      <div className="text-xs font-medium text-text-secondary dark:text-text-secondary-dark mb-2">Properties</div>
                       <div className="flex flex-wrap gap-1">
                         {Object.entries(location.properties).slice(0, 3).map(([key, value]) => (
                           <span
                             key={key}
-                            className="px-2 py-0.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs rounded-full"
+                            className="badge badge-success text-xs"
                           >
                             {key}: {String(value)}
                           </span>
                         ))}
                         {Object.keys(location.properties).length > 3 && (
-                          <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs rounded-full">
+                          <span className="badge badge-secondary text-xs">
                             +{Object.keys(location.properties).length - 3} more
                           </span>
                         )}
@@ -225,21 +238,21 @@ export default function LocationList() {
                   {/* Connected Locations */}
                   {connectedNames.length > 0 && (
                     <div>
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Connected To</div>
+                      <div className="text-xs font-medium text-text-secondary dark:text-text-secondary-dark mb-2">Connected To</div>
                       <div className="space-y-1">
                         {connectedNames.slice(0, 2).map((name) => (
                           <div
                             key={name}
                             className="flex items-center text-xs"
                           >
-                            <MapPin className="w-3 h-3 text-gray-400 mr-1" />
-                            <span className="text-gray-600 dark:text-gray-300 truncate">
+                            <MapPin className="w-3 h-3 text-text-secondary dark:text-text-secondary-dark mr-1" />
+                            <span className="text-text-secondary dark:text-text-secondary-dark truncate">
                               {name}
                             </span>
                           </div>
                         ))}
                         {connectedNames.length > 2 && (
-                          <div className="text-xs text-gray-400 dark:text-gray-500">
+                          <div className="text-xs text-text-secondary dark:text-text-secondary-dark">
                             +{connectedNames.length - 2} more
                           </div>
                         )}

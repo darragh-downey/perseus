@@ -26,7 +26,7 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
   useEffect(() => {
     if (existingRule) {
       setFormData({
-        category: existingRule.category,
+        category: existingRule.category as any,
         title: existingRule.title,
         description: existingRule.description,
         examples: [...(existingRule.examples || [])],
@@ -44,17 +44,17 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
     try {
       const ruleData = {
         id: ruleId || Date.now().toString(),
-        category: formData.category,
+        category: formData.category as any,
         title: formData.title.trim(),
         description: formData.description.trim(),
         examples: formData.examples.filter(ex => ex.trim()),
         limitations: formData.limitations.filter(lim => lim.trim()),
+        bookId: state.currentBook?.id || '',
+        projectId: state.currentProject.id,
+        workspaceId: state.currentWorkspace?.id || '',
       };
 
-      await storageService.saveWorldRule({
-        ...ruleData,
-        projectId: state.currentProject.id,
-      });
+      await storageService.saveWorldRule(ruleData);
 
       if (isEditing) {
         dispatch({ type: 'UPDATE_WORLD_RULE', payload: ruleData });
@@ -110,18 +110,23 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white dark:bg-surface-dark rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {isEditing ? 'Edit World Rule' : 'Add World Rule'}
-          </h2>
+        <div className="flex items-center justify-between p-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-t-lg">
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 rounded-lg p-2">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <h2 className="text-xl font-semibold">
+              {isEditing ? 'Edit World Rule' : 'Add World Rule'}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -129,8 +134,8 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Category *
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-3">
+              Category <span className="text-accent-500">*</span>
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {ruleCategories.map(category => {
@@ -140,18 +145,18 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
                     key={category.value}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, category: category.value as any }))}
-                    className={`flex items-start space-x-3 p-4 rounded-lg border-2 text-left transition-all ${
+                    className={`flex items-start space-x-3 p-4 rounded-lg border-2 text-left transition-all hover:shadow-md ${
                       formData.category === category.value
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-lg'
+                        : 'border-border-light dark:border-border-dark hover:border-primary-300 dark:hover:border-primary-700'
                     }`}
                   >
-                    <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <Icon className="w-5 h-5 text-primary-600 dark:text-primary-400 mt-0.5" />
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-white">
+                      <div className="font-medium text-text-primary dark:text-text-primary-dark">
                         {category.label}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <div className="text-xs text-text-secondary dark:text-text-secondary-dark mt-1">
                         {category.description}
                       </div>
                     </div>
@@ -163,14 +168,14 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rule Title *
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
+              Rule Title <span className="text-accent-500">*</span>
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-primary w-full"
               placeholder="e.g., Magic requires physical components"
               required
             />
@@ -178,14 +183,14 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description *
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
+              Description <span className="text-accent-500">*</span>
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={4}
-              className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="input-primary w-full resize-none"
               placeholder="Explain how this rule works in your world..."
               required
             />
@@ -193,7 +198,7 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
 
           {/* Examples */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
               Examples
             </label>
             
@@ -203,16 +208,16 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
                 {formData.examples.map((example, index) => (
                   <div
                     key={index}
-                    className="flex items-start justify-between bg-green-50 dark:bg-green-900/20 rounded-lg p-3"
+                    className="flex items-start justify-between bg-success-50 dark:bg-success-900/20 rounded-lg p-3 border border-success-200 dark:border-success-800"
                   >
-                    <div className="text-sm text-green-700 dark:text-green-300 flex-1">
+                    <div className="text-sm text-success-700 dark:text-success-300 flex-1">
                       <span className="font-medium">Example {index + 1}:</span>
                       <span className="ml-1">{example}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveExample(index)}
-                      className="text-red-500 hover:text-red-700 p-1 ml-2"
+                      className="text-danger-500 hover:text-danger-700 p-1 ml-2 rounded transition-colors"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -228,14 +233,14 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
                 value={newExample}
                 onChange={(e) => setNewExample(e.target.value)}
                 placeholder="Add an example..."
-                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-secondary flex-1 text-sm"
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddExample())}
               />
               <button
                 type="button"
                 onClick={handleAddExample}
                 disabled={!newExample.trim()}
-                className="p-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
+                className="btn-primary p-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -244,7 +249,7 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
 
           {/* Limitations */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
               Limitations
             </label>
             
@@ -254,16 +259,16 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
                 {formData.limitations.map((limitation, index) => (
                   <div
                     key={index}
-                    className="flex items-start justify-between bg-red-50 dark:bg-red-900/20 rounded-lg p-3"
+                    className="flex items-start justify-between bg-warning-50 dark:bg-warning-900/20 rounded-lg p-3 border border-warning-200 dark:border-warning-800"
                   >
-                    <div className="text-sm text-red-700 dark:text-red-300 flex-1">
+                    <div className="text-sm text-warning-700 dark:text-warning-300 flex-1">
                       <span className="font-medium">Limitation {index + 1}:</span>
                       <span className="ml-1">{limitation}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveLimitation(index)}
-                      className="text-red-500 hover:text-red-700 p-1 ml-2"
+                      className="text-danger-500 hover:text-danger-700 p-1 ml-2 rounded transition-colors"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -279,14 +284,14 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
                 value={newLimitation}
                 onChange={(e) => setNewLimitation(e.target.value)}
                 placeholder="Add a limitation..."
-                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-secondary flex-1 text-sm"
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddLimitation())}
               />
               <button
                 type="button"
                 onClick={handleAddLimitation}
                 disabled={!newLimitation.trim()}
-                className="p-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
+                className="btn-secondary p-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -294,17 +299,17 @@ export default function WorldRuleForm({ onClose, ruleId }: WorldRuleFormProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-border-light dark:border-border-dark">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn-ghost"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+              className="btn-primary"
             >
               {isEditing ? 'Update' : 'Create'} Rule
             </button>

@@ -78,9 +78,9 @@ export default function CharacterList() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800 animate-fade-in">
       {/* Filters */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="relative flex-1">
@@ -90,7 +90,7 @@ export default function CharacterList() {
               placeholder="Search characters..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input input-primary w-full pl-10"
             />
           </div>
 
@@ -100,7 +100,7 @@ export default function CharacterList() {
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value as any)}
-              className="bg-gray-100 dark:bg-gray-700 border-none rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input input-secondary"
             >
               <option value="all">All Characters</option>
               <option value="hasRelationships">With Relationships</option>
@@ -126,7 +126,7 @@ export default function CharacterList() {
               return (
                 <div
                   key={character.id}
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow"
+                  className="card-interactive group p-4 border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-all duration-200"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">
@@ -150,7 +150,7 @@ export default function CharacterList() {
                     <div className="flex items-center space-x-1">
                       <button
                         onClick={() => setEditingCharacter(character.id)}
-                        className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
+                        className="btn btn-ghost btn-sm opacity-0 group-hover:opacity-100 p-1"
                         title="Edit Character"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -158,7 +158,7 @@ export default function CharacterList() {
                       
                       <button
                         onClick={() => handleDeleteCharacter(character.id)}
-                        className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors"
+                        className="btn btn-ghost btn-sm opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:text-red-700"
                         title="Delete Character"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -181,13 +181,13 @@ export default function CharacterList() {
                         {Object.entries(character.traits).slice(0, 3).map(([key, value]) => (
                           <span
                             key={key}
-                            className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-full"
+                            className="badge badge-secondary text-xs"
                           >
                             {key}: {String(value)}
                           </span>
                         ))}
                         {Object.keys(character.traits).length > 3 && (
-                          <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs rounded-full">
+                          <span className="badge badge-secondary text-xs">
                             +{Object.keys(character.traits).length - 3} more
                           </span>
                         )}
@@ -212,7 +212,7 @@ export default function CharacterList() {
                               <span className="text-gray-600 dark:text-gray-300 truncate">
                                 {otherCharacter?.name}
                               </span>
-                              <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full ml-2">
+                              <span className="badge badge-primary text-xs ml-2">
                                 {rel.type}
                               </span>
                             </div>

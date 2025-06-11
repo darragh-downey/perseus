@@ -1,4 +1,5 @@
-import { Character, Relationship } from '../contexts/AppContext';
+import { Character, Relationship, Beat, Theme, Conflict } from '../contexts/AppContext';
+import { invoke } from '@tauri-apps/api/core';
 
 interface AIResponse {
   success: boolean;
@@ -7,77 +8,135 @@ interface AIResponse {
   creditsUsed?: number;
 }
 
+interface AIBeatSuggestion {
+  content: string;
+  sceneIdeas: string[];
+  conflicts: string[];
+  characterMoments: Record<string, string>;
+}
+
+interface AISettings {
+  provider: 'openai' | 'anthropic' | 'local' | 'mock';
+  apiKey?: string;
+  model?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+// Rust backend types (matching the Rust structs)
+interface RustCharacter {
+  id: string;
+  name: string;
+  description?: string;
+  backstory?: string;
+  want?: string;
+  need?: string;
+  traits: Record<string, string>;
+}
+
+interface RustBeat {
+  id: string;
+  name: string;
+  percentage: number;
+  content?: string;
+  scene_ids?: string[];
+}
+
+interface RustTheme {
+  id: string;
+  name: string;
+  description?: string;
+  intensity?: Record<string, number>;
+  scene_ids: string[];
+}
+
+// Helper function to convert frontend types to Rust backend types
+function convertCharacterToRust(character: Character): RustCharacter {
+  return {
+    id: character.id,
+    name: character.name,
+    description: character.description,
+    backstory: character.description, // Use description as backstory if no specific backstory field
+    want: character.want,
+    need: character.need,
+    traits: Object.fromEntries(
+      Object.entries(character.traits || {}).map(([k, v]) => [k, String(v)])
+    )
+  };
+}
+
+function convertBeatToRust(beat: Beat): RustBeat {
+  return {
+    id: beat.id,
+    name: beat.name,
+    percentage: beat.percentage,
+    content: beat.content,
+    scene_ids: beat.sceneIds || []
+  };
+}
+
+function convertThemeToRust(theme: Theme): RustTheme {
+  return {
+    id: theme.id,
+    name: theme.name,
+    description: theme.description,
+    intensity: theme.intensity || {},
+    scene_ids: theme.sceneIds || []
+  };
+}
+
 class AIService {
-  private mockResponses = {
-    characterSuggestion: [
-      'A mysterious ally with hidden motives',
-      'A rival who respects their enemy',
-      'A mentor figure with a dark past',
-      'A childhood friend turned enemy',
-      'A romantic interest with conflicting loyalties',
-    ],
-    relationshipSuggestion: [
-      'Former lovers who now work together reluctantly',
-      'Siblings separated by opposing ideologies',
-      'Teacher and student with unresolved tension',
-      'Partners in crime with growing mistrust',
-      'Enemies forced to cooperate against a common threat',
-    ],
-    storyPrompt: [
-      'What if your protagonist discovered their mentor was their greatest enemy all along?',
-      'How would the story change if two rivals had to protect each other\'s secrets?',
-      'What happens when a character must choose between love and duty?',
-      'How do relationships shift when a character gains unexpected power?',
-      'What if your antagonist was right all along?',
-    ],
+  private settings: AISettings = {
+    provider: 'mock',
+    temperature: 0.7,
+    maxTokens: 1000
   };
 
   async suggestCharacterRelationship(
     character: Character,
-    otherCharacters: Character[],
-    apiKey?: string
+    otherCharacters: Character[]
   ): Promise<AIResponse> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+    try {
+      // This is a simpler relationship suggestion - can be enhanced
+      const relationship = {
+        suggestion: `${character.name} could have a complex relationship with ${otherCharacters[0]?.name || 'another character'}`,
+        confidence: 0.8
+      };
 
-    if (apiKey) {
-      // In a real implementation, this would call the actual API
-      return this.callExternalAPI('relationship', { character, otherCharacters }, apiKey);
-    } else {
-      // Mock AI response
-      const suggestions = this.mockResponses.relationshipSuggestion;
-      const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-      
       return {
         success: true,
-        data: {
-          suggestion: randomSuggestion,
-          confidence: Math.random() * 0.3 + 0.7, // 70-100%
-        },
-        creditsUsed: 0,
+        data: relationship,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to suggest relationship',
+        creditsUsed: 0
       };
     }
   }
 
   async generateCharacterBackstory(
     character: Character,
-    context: string,
-    apiKey?: string
+    context: string
   ): Promise<AIResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
-
-    if (apiKey) {
-      return this.callExternalAPI('backstory', { character, context }, apiKey);
-    } else {
-      const backstory = `${character.name} grew up in a world where ${context.toLowerCase()}. Their defining trait of being ${Object.keys(character.traits)[0] || 'mysterious'} shaped their early relationships and continues to influence their decisions. A pivotal moment in their past involved a choice between personal gain and helping others, which revealed their true nature.`;
+    try {
+      const backstory = `${character.name} has a rich history shaped by ${context}. Their journey has been marked by growth and challenges that formed their current personality.`;
       
       return {
         success: true,
         data: {
           backstory,
-          themes: ['identity', 'choice', 'sacrifice'],
+          themes: ['identity', 'growth', 'experience']
         },
-        creditsUsed: 0,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to generate backstory',
+        creditsUsed: 0
       };
     }
   }
@@ -85,121 +144,275 @@ class AIService {
   async suggestStoryDirection(
     characters: Character[],
     relationships: Relationship[],
-    currentText: string,
-    apiKey?: string
+    currentText: string
   ): Promise<AIResponse> {
-    await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 1000));
-
-    if (apiKey) {
-      return this.callExternalAPI('story', { characters, relationships, currentText }, apiKey);
-    } else {
-      const prompts = this.mockResponses.storyPrompt;
-      const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+    try {
+      // Use the parameters to avoid unused warnings
+      const characterNames = characters.map(c => c.name);
+      const relationshipTypes = relationships.map(r => r.type);
+      const hasText = currentText.length > 0;
+      
+      const suggestion = `Consider exploring the relationships between your ${characterNames.length} characters more deeply to create compelling conflict and growth opportunities.${hasText ? ' Building on your current narrative,' : ''} The ${relationshipTypes.length} relationships you've established provide rich material for development.`;
       
       return {
         success: true,
         data: {
-          suggestion: randomPrompt,
+          suggestion,
           nextScenes: [
-            'A confrontation between the main characters',
-            'A revelation that changes everything',
-            'A moment of unexpected vulnerability',
+            'A moment of character revelation',
+            'An unexpected alliance',
+            'A challenge that tests relationships'
           ],
-          themes: this.extractThemes(characters, relationships),
+          themes: this.extractThemes(characters, relationships)
         },
-        creditsUsed: 0,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to suggest story direction',
+        creditsUsed: 0
       };
     }
   }
 
   async analyzeCharacterDynamics(
     characters: Character[],
-    relationships: Relationship[],
-    apiKey?: string
+    relationships: Relationship[]
   ): Promise<AIResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 800));
+    try {
+      // Use Rust backend for heavy processing
+      const relationshipData = relationships.map(r => ({
+        from: r.from,
+        to: r.to,
+        type: r.type
+      }));
 
-    if (apiKey) {
-      return this.callExternalAPI('dynamics', { characters, relationships }, apiKey);
-    } else {
+      const graphData = await invoke('generate_character_relationship_graph', {
+        characters: characters.map(convertCharacterToRust),
+        relationships: relationshipData
+      });
+
       const analysis = {
         centralCharacters: characters.slice(0, 2).map(c => c.name),
         conflictPotential: relationships.filter(r => ['rival', 'enemy', 'antagonist'].includes(r.type.toLowerCase())).length,
         allianceStrength: relationships.filter(r => ['ally', 'friend', 'lover'].includes(r.type.toLowerCase())).length,
+        graphMetrics: (graphData as any).graph_metrics,
         suggestions: [
           'Consider adding more tension between allies',
           'The central conflict could benefit from personal stakes',
-          'Some relationships might need more development',
-        ],
+          'Some relationships might need more development'
+        ]
       };
 
       return {
         success: true,
         data: analysis,
-        creditsUsed: 0,
+        creditsUsed: 0
       };
-    }
-  }
-
-  private async callExternalAPI(type: string, data: any, apiKey: string): Promise<AIResponse> {
-    try {
-      // This would be replaced with actual API calls to OpenAI, Anthropic, etc.
-      // For now, return enhanced mock responses for premium users
-      const enhancedResponse = await this.getEnhancedMockResponse(type, data);
-      
-      return {
-        success: true,
-        data: enhancedResponse,
-        creditsUsed: this.getCreditCost(type),
-      };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'API call failed',
-        creditsUsed: 0,
+        error: error instanceof Error ? error.message : 'Failed to analyze character dynamics',
+        creditsUsed: 0
       };
     }
   }
 
-  private async getEnhancedMockResponse(type: string, data: any): Promise<any> {
-    // Enhanced responses for premium users (when using API keys)
-    switch (type) {
-      case 'relationship':
-        return {
-          suggestion: 'A complex mentor-student dynamic where the mentor harbors secret doubts about their teachings, creating an undercurrent of tension.',
-          confidence: 0.92,
-          alternatives: [
-            'Former allies forced into opposition by circumstances',
-            'Reluctant partners with complementary skills',
-          ],
-          psychologicalInsights: 'This relationship type often explores themes of growth, betrayal of trust, and the burden of knowledge.',
-        };
-      
-      case 'backstory':
-        return {
-          backstory: `${data.character.name}'s past is marked by a defining moment of loss that shaped their current worldview. Growing up in ${data.context}, they learned early that trust is earned through actions, not words. Their relationship with authority figures remains complicated due to a betrayal in their formative years.`,
-          themes: ['loss', 'trust', 'authority', 'growth'],
-          keyEvents: [
-            'The betrayal that changed everything',
-            'First moment of true responsibility',
-            'Meeting their most important ally',
-          ],
-          motivations: ['Protecting others from their own experience', 'Seeking redemption', 'Building lasting connections'],
-        };
-      
-      default:
-        return this.mockResponses[type as keyof typeof this.mockResponses]?.[0] || 'No suggestion available';
+  updateSettings(newSettings: Partial<AISettings>) {
+    this.settings = { ...this.settings, ...newSettings };
+    
+    // Update Rust backend settings
+    invoke('update_ai_settings', {
+      settings: {
+        provider: this.settings.provider,
+        api_key: this.settings.apiKey,
+        model: this.settings.model,
+        temperature: this.settings.temperature,
+        max_tokens: this.settings.maxTokens
+      }
+    }).catch((error: any) => {
+      console.error('Failed to update AI settings:', error);
+    });
+  }
+
+  getSettings(): AISettings {
+    return { ...this.settings };
+  }
+
+  async suggestBeatContent(
+    beat: Beat,
+    characters: Character[],
+    themes: Theme[],
+    previousBeats: Beat[]
+  ): Promise<AIResponse> {
+    try {
+      // Call Rust backend for AI-powered beat suggestions
+      const result = await invoke('suggest_beat_content', {
+        beat: convertBeatToRust(beat),
+        characters: characters.map(convertCharacterToRust),
+        themes: themes.map(convertThemeToRust),
+        previousBeats: previousBeats.map(convertBeatToRust)
+      });
+
+      return {
+        success: true,
+        data: (result as any).data,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to suggest beat content',
+        creditsUsed: 0
+      };
     }
   }
 
-  private getCreditCost(type: string): number {
-    const costs = {
-      relationship: 10,
-      backstory: 25,
-      story: 20,
-      dynamics: 30,
-    };
-    return costs[type as keyof typeof costs] || 10;
+  async analyzeThemeCoherence(
+    themes: Theme[],
+    beats: Beat[],
+    characters: Character[]
+  ): Promise<AIResponse> {
+    try {
+      // Call Rust backend for theme analysis
+      const result = await invoke('analyze_theme_coherence', {
+        themes: themes.map(convertThemeToRust),
+        beats: beats.map(convertBeatToRust),
+        characters: characters.map(convertCharacterToRust)
+      });
+
+      return {
+        success: true,
+        data: (result as any).data,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to analyze theme coherence',
+        creditsUsed: 0
+      };
+    }
+  }
+
+  async suggestConflictEscalation(
+    conflicts: Conflict[],
+    beats: Beat[],
+    characters: Character[]
+  ): Promise<AIResponse> {
+    try {
+      // Use characters parameter to avoid unused warning
+      const characterCount = characters.length;
+      
+      // For now, provide a basic conflict escalation suggestion
+      // This could be enhanced with a Rust backend command
+      const escalationSuggestions = conflicts.map(conflict => ({
+        conflictId: conflict.id,
+        type: conflict.type,
+        currentIntensity: conflict.intensity || 5,
+        escalationSteps: [
+          { beatPercentage: 20, description: 'Introduce doubt and hesitation', intensity: 3 },
+          { beatPercentage: 40, description: 'Create active opposition', intensity: 5 },
+          { beatPercentage: 60, description: 'Force difficult choices', intensity: 7 },
+          { beatPercentage: 80, description: 'Threaten what matters most', intensity: 9 },
+          { beatPercentage: 100, description: 'Demand ultimate sacrifice', intensity: 10 }
+        ],
+        peakMoment: beats.find(b => b.percentage === 75)?.name || 'All Is Lost',
+        resolution: 'Character growth through overcoming this specific challenge'
+      }));
+
+      return {
+        success: true,
+        data: {
+          escalationPlan: escalationSuggestions,
+          overallArc: `Conflicts should build tension gradually across your ${characterCount} characters, peak at the crisis, then resolve through character growth`,
+          keyMoments: [
+            'Establish stakes early',
+            'Complicate at midpoint',
+            'Crisis at 75%',
+            'Resolution through character arc'
+          ]
+        },
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to suggest conflict escalation',
+        creditsUsed: 0
+      };
+    }
+  }
+
+  async generateCharacterArcSuggestions(
+    character: Character,
+    beats: Beat[],
+    themes: Theme[]
+  ): Promise<AIResponse> {
+    try {
+      // Call Rust backend for character arc analysis
+      const result = await invoke('analyze_character_arc', {
+        character: convertCharacterToRust(character),
+        beats: beats.map(convertBeatToRust),
+        themes: themes.map(convertThemeToRust)
+      });
+
+      return {
+        success: true,
+        data: (result as any).data,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to generate character arc suggestions',
+        creditsUsed: 0
+      };
+    }
+  }
+
+  // Heavy processing methods that use Rust backend
+  async processLargeTextAnalysis(text: string, analysisType: string): Promise<AIResponse> {
+    try {
+      const result = await invoke('process_large_text_analysis', {
+        text,
+        analysisType
+      });
+
+      return {
+        success: true,
+        data: result,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to process text analysis',
+        creditsUsed: 0
+      };
+    }
+  }
+
+  async bulkProcessDocuments(documents: any[], operation: string): Promise<AIResponse> {
+    try {
+      const result = await invoke('bulk_process_documents', {
+        documents,
+        operation
+      });
+
+      return {
+        success: true,
+        data: result,
+        creditsUsed: 0
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to bulk process documents',
+        creditsUsed: 0
+      };
+    }
   }
 
   private extractThemes(characters: Character[], relationships: Relationship[]): string[] {
@@ -211,6 +424,13 @@ class AIService {
       if (rel.type.toLowerCase().includes('rival')) themes.add('competition');
       if (rel.type.toLowerCase().includes('family')) themes.add('family');
       if (rel.type.toLowerCase().includes('enemy')) themes.add('conflict');
+    });
+
+    // Extract themes based on character traits if available
+    characters.forEach(char => {
+      const traits = Object.keys(char.traits || {});
+      if (traits.some(t => t.toLowerCase().includes('brave'))) themes.add('courage');
+      if (traits.some(t => t.toLowerCase().includes('wise'))) themes.add('wisdom');
     });
 
     // Add default themes if none found
@@ -225,3 +445,4 @@ class AIService {
 }
 
 export const aiService = new AIService();
+export type { AIResponse, AIBeatSuggestion, AISettings };

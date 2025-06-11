@@ -199,80 +199,84 @@ export default function HierarchySelector({ className = '' }: HierarchySelectorP
     };
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {titles[showForm]}
-            </h3>
-            <button
-              onClick={() => setShowForm(null)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder={placeholders[showForm]}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                autoFocus
-              />
+      <div className="overlay flex items-center justify-center p-4">
+        <div className="card max-w-md w-full scale-in">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {titles[showForm]}
+              </h3>
+              <button
+                onClick={() => setShowForm(null)}
+                className="btn btn-ghost btn-sm !p-1 focus-ring"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Description (optional)
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder={`Describe your ${showForm}...`}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            {showForm === 'project' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Project Type
+            <div className="space-y-5">
+              <div className="form-group">
+                <label className="form-label">
+                  Name *
                 </label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'series' | 'standalone' | 'collection' }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="standalone">Standalone Novel</option>
-                  <option value="series">Book Series</option>
-                  <option value="collection">Short Story Collection</option>
-                </select>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder={placeholders[showForm]}
+                  className="input"
+                  autoFocus
+                />
               </div>
-            )}
-          </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
-            <button
-              onClick={() => setShowForm(null)}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit[showForm]}
-              disabled={!formData.name.trim()}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
-            >
-              Create {showForm.charAt(0).toUpperCase() + showForm.slice(1)}
-            </button>
+              <div className="form-group">
+                <label className="form-label">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder={`Describe your ${showForm}...`}
+                  rows={3}
+                  className="textarea"
+                />
+                <p className="form-help">Optional but recommended for better organization</p>
+              </div>
+
+              {showForm === 'project' && (
+                <div className="form-group">
+                  <label className="form-label">
+                    Project Type
+                  </label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'series' | 'standalone' | 'collection' }))}
+                    className="select"
+                  >
+                    <option value="standalone">Standalone Novel</option>
+                    <option value="series">Book Series</option>
+                    <option value="collection">Short Story Collection</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-8">
+              <button
+                onClick={() => setShowForm(null)}
+                className="btn btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit[showForm]}
+                disabled={!formData.name.trim()}
+                className="btn btn-primary"
+              >
+                Create {showForm.charAt(0).toUpperCase() + showForm.slice(1)}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { useApp } from '../../contexts/hooks';
 import { Character, Relationship } from '../../contexts/AppContext';
+import { analyticsService, ForceGraphData, GraphNode as AnalyticsGraphNode, GraphLink as AnalyticsGraphLink } from '../../services/analytics';
 import { 
   RotateCcw, 
   ZoomIn, 
@@ -49,8 +50,37 @@ export default function CharacterGraph() {
     colorScheme: 'default',
   });
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [graphData, setGraphData] = useState<ForceGraphData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const simulationRef = useRef<d3.Simulation<GraphNode, GraphLink> | null>(null);
   const transformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
+
+  // Load graph data from Rust backend
+  useEffect(() => {
+    const loadGraphData = async () => {
+      if (state.characters.length === 0) {
+        setGraphData(null);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const data = await analyticsService.generateCharacterForceGraph(
+          state.characters,
+          state.relationships
+        );
+        setGraphData(data);
+      } catch (error) {
+        console.error('Failed to generate force graph:', error);
+        // Fallback to local processing if needed
+        setGraphData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadGraphData();
+  }, [state.characters, state.relationships, graphSettings]);
 
   const relationshipColors = {
     ally: '#10b981',
@@ -91,8 +121,9 @@ export default function CharacterGraph() {
     return baseSize + Math.min(relationshipCount * 3, 15);
   };
 
+  // Render graph using processed data from Rust backend
   useEffect(() => {
-    if (!svgRef.current || state.characters.length === 0) return;
+    if (!svgRef.current || !graphData || isLoading) return;
 
     const svg = d3.select(svgRef.current);
     const container = svg.select('g.graph-container');
@@ -105,39 +136,41 @@ export default function CharacterGraph() {
     const width = rect.width;
     const height = rect.height;
 
-    // Create nodes
-    const nodes: GraphNode[] = state.characters.map((character, index) => ({
-      id: character.id,
-      name: character.name,
-      character,
-      radius: getNodeRadius(character),
-      color: getCharacterColor(character),
-      group: index % 5, // Simple grouping for clustering
+    // Convert analytics nodes to D3 nodes
+    const nodes: GraphNode[] = graphData.nodes.map(node => ({
+      id: node.id,
+      name: node.name,
+      character: state.characters.find(c => c.id === node.id)!,
+      radius: node.radius,
+      color: node.color,
+      group: node.group,
     }));
 
-    // Create links
-    const links: GraphLink[] = state.relationships.map(rel => {
-      const source = nodes.find(n => n.id === rel.from);
-      const target = nodes.find(n => n.id === rel.to);
+    // Convert analytics links to D3 links  
+    const links: GraphLink[] = graphData.links.map(link => {
+      const source = nodes.find(n => n.id === link.source);
+      const target = nodes.find(n => n.id === link.target);
       
       return {
         source: source!,
         target: target!,
-        relationship: rel,
-        strength: rel.strength / 100,
-        color: getRelationshipColor(rel.type),
-        width: 2 + (rel.strength / 100) * 4,
+        relationship: state.relationships.find(r => 
+          (r.from === link.source && r.to === link.target) ||
+          (r.from === link.target && r.to === link.source)
+        )!,
+        strength: link.strength,
+        color: link.color,
+        width: link.width,
       };
-    }).filter(link => link.source && link.target);
+    }).filter(link => link.source && link.target && link.relationship);
 
-    // Create force simulation
+    // Create force simulation with optimized settings
     const forceStrength = graphSettings.physics === 'weak' ? 0.3 : graphSettings.physics === 'strong' ? 0.8 : 0.5;
-    const linkDistance = graphSettings.linkStrength === 'short' ? 80 : graphSettings.linkStrength === 'long' ? 150 : 120;
 
     const simulation = d3.forceSimulation<GraphNode>(nodes)
       .force('link', d3.forceLink<GraphNode, GraphLink>(links)
         .id(d => d.id)
-        .distance(d => linkDistance + (1 - d.strength) * 50)
+        .distance(d => (d as any).distance || 120)
         .strength(d => d.strength * forceStrength)
       )
       .force('charge', d3.forceManyBody().strength(-400))
@@ -325,7 +358,7 @@ export default function CharacterGraph() {
         simulationRef.current.stop();
       }
     };
-  }, [state.characters, state.relationships, selectedNode, graphSettings]);
+  }, [graphData, selectedNode, graphSettings, isLoading]);
 
   const handleReset = () => {
     if (simulationRef.current) {

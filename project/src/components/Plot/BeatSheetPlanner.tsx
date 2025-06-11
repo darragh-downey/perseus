@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/hooks';
 import { Beat, PlotStructure } from '../../contexts/AppContext';
 import { storageService } from '../../services';
-import { generateDefaultBeatSheet, getGenreTemplate, genreTemplates, getBeatPrompt } from '../../utils/plotStructure';
+import { generateDefaultBeatSheet, getGenreTemplate, genreTemplates } from '../../utils/plotStructure';
+import { BeatTimeline } from './visualizations/BeatTimeline';
+import { BookOpen } from 'lucide-react';
 
 export const BeatSheetPlanner: React.FC = () => {
   const { state, dispatch } = useApp();
@@ -124,47 +126,54 @@ export const BeatSheetPlanner: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Beat Sheet Planner</h2>
-          <p className="text-gray-600 dark:text-gray-400">Structure your story using the Save the Cat! method</p>
+      <div className="p-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 rounded-lg p-2">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Beat Sheet Planner</h2>
+              <p className="text-indigo-100">Structure your story using the Save the Cat! method</p>
+            </div>
+          </div>
+          <button
+            onClick={savePlotStructure}
+            className="btn-primary bg-white text-indigo-600 hover:bg-gray-100"
+          >
+            Save Structure
+          </button>
         </div>
-        <button
-          onClick={savePlotStructure}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Save Structure
-        </button>
       </div>
 
       {/* Target Word Count & Genre Selection */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+      <div className="card p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
               Target Word Count
             </label>
             <input
               type="number"
               value={targetWordCount}
               onChange={(e) => handleTargetWordCountChange(parseInt(e.target.value) || 0)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="input-primary w-full"
               min="1000"
               step="1000"
             />
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-text-secondary dark:text-text-secondary-dark mt-1">
               Total words for your completed manuscript
             </p>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
               Story Structure Template
             </label>
             <select
               value={selectedGenre}
               onChange={(e) => handleGenreChange(e.target.value as keyof typeof genreTemplates | 'default')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="input-primary w-full"
             >
               <option value="default">Save the Cat! (Universal)</option>
               {Object.keys(genreTemplates).map(genre => (
@@ -173,7 +182,7 @@ export const BeatSheetPlanner: React.FC = () => {
                 </option>
               ))}
             </select>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-text-secondary dark:text-text-secondary-dark mt-1">
               Choose a structure template for your genre
             </p>
           </div>
@@ -181,8 +190,8 @@ export const BeatSheetPlanner: React.FC = () => {
       </div>
 
       {/* Beat Timeline */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Story Timeline</h3>
+      <div className="card p-6">
+        <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">Story Timeline</h3>
         
         <div className="space-y-4">
           {beats.map((beat) => (
@@ -276,6 +285,19 @@ export const BeatSheetPlanner: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Timeline Visualization */}
+      <BeatTimeline 
+        beats={beats}
+        targetWordCount={targetWordCount}
+        onBeatClick={(beat) => {
+          // Scroll to beat in the timeline
+          const element = document.getElementById(`beat-${beat.id}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+      />
     </div>
   );
 };

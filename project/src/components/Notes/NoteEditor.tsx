@@ -83,15 +83,15 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700">
         <div className="flex-1 mr-4">
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="text-lg font-semibold bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 w-full"
+            className="text-lg font-semibold bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 w-full focus:ring-2 focus:ring-purple-500/20 rounded px-2 py-1 transition-all"
             placeholder="Note Title"
           />
         </div>
@@ -99,10 +99,10 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowPreview(!showPreview)}
-            className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+            className={`btn btn-sm transition-colors ${
               showPreview
-                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'btn-primary'
+                : 'btn-ghost'
             }`}
           >
             {showPreview ? 'Edit' : 'Preview'}
@@ -110,7 +110,7 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
           
           <button
             onClick={extractHashtags}
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="btn btn-ghost btn-sm"
             title="Extract hashtags from content"
           >
             <Hash className="w-4 h-4" />
@@ -118,7 +118,7 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
           
           <button
             onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="btn btn-ghost btn-sm"
           >
             <X className="w-4 h-4" />
           </button>
@@ -126,9 +126,11 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
       </div>
 
       {/* Tags Section */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-        <div className="flex items-center space-x-2 mb-2">
-          <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/10 dark:to-blue-900/10">
+        <div className="flex items-center space-x-2 mb-3">
+          <div className="w-6 h-6 bg-purple-500 rounded-lg flex items-center justify-center">
+            <Tag className="w-3 h-3 text-white" />
+          </div>
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tags</span>
         </div>
         
@@ -137,12 +139,12 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
           {tags.map(tag => (
             <span
               key={tag}
-              className="inline-flex items-center px-2 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-sm rounded-full"
+              className="badge badge-primary inline-flex items-center"
             >
               #{tag}
               <button
                 onClick={() => handleRemoveTag(tag)}
-                className="ml-1 text-purple-500 hover:text-purple-700 dark:hover:text-purple-200"
+                className="ml-1 text-purple-300 hover:text-white transition-colors"
               >
                 ×
               </button>
@@ -158,12 +160,12 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
             onChange={(e) => setNewTag(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Add tag..."
-            className="flex-1 px-3 py-1 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="input input-primary flex-1"
           />
           <button
             onClick={handleAddTag}
             disabled={!newTag.trim()}
-            className="p-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
+            className="btn btn-primary btn-sm"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -248,16 +250,16 @@ export default function NoteEditor({ note, onClose }: NoteEditorProps) {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <div>
-            Created: {new Date(note.createdAt).toLocaleDateString()}
+          <div className="flex items-center space-x-4">
+            <span>Created: {new Date(note.createdAt).toLocaleDateString()}</span>
+            <span>Last updated: {new Date(note.updatedAt).toLocaleString()}</span>
           </div>
-          <div>
-            Last updated: {new Date(note.updatedAt).toLocaleString()}
-          </div>
-          <div>
-            {content.trim() ? content.trim().split(/\s+/).length : 0} words
+          <div className="flex items-center space-x-2">
+            <span className="badge badge-secondary">
+              {content.trim() ? content.trim().split(/\s+/).length : 0} words
+            </span>
           </div>
         </div>
       </div>

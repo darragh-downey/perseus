@@ -181,29 +181,35 @@ export default function DocumentList({ isOpen, onToggle }: DocumentListProps) {
   const sortedGroups = [...state.groups].sort((a, b) => a.order - b.order);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sheets</h2>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <FileText className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sheets</h2>
+            <span className="badge badge-secondary">{state.documents.length}</span>
+          </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => handleCreateDocument()}
-              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="btn btn-primary btn-sm"
               title="Create New Sheet"
             >
               <Plus className="w-4 h-4" />
             </button>
             <button
               onClick={() => setShowGroupForm(!showGroupForm)}
-              className="p-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              className="btn btn-secondary btn-sm"
               title="Create New Group"
             >
               <Folder className="w-4 h-4" />
             </button>
             <button
               onClick={onToggle}
-              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn btn-ghost btn-sm"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -212,22 +218,32 @@ export default function DocumentList({ isOpen, onToggle }: DocumentListProps) {
 
         {/* New Group Form */}
         {showGroupForm && (
-          <div className="mb-4 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+          <div className="card mb-4 animate-slide-up">
             <div className="flex items-center space-x-2">
               <input
                 type="text"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
                 placeholder="Group name..."
-                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-600 border-none rounded text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input input-primary flex-1"
                 onKeyPress={(e) => e.key === 'Enter' && handleCreateGroup()}
+                autoFocus
               />
               <button
                 onClick={handleCreateGroup}
                 disabled={!newGroupName.trim()}
-                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded text-sm font-medium transition-colors"
+                className="btn btn-primary btn-sm"
               >
                 Create
+              </button>
+              <button
+                onClick={() => {
+                  setShowGroupForm(false);
+                  setNewGroupName('');
+                }}
+                className="btn btn-ghost btn-sm"
+              >
+                Cancel
               </button>
             </div>
           </div>
@@ -241,7 +257,7 @@ export default function DocumentList({ isOpen, onToggle }: DocumentListProps) {
             placeholder="Search sheets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="input input-primary w-full pl-10"
           />
         </div>
 
@@ -249,7 +265,7 @@ export default function DocumentList({ isOpen, onToggle }: DocumentListProps) {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as any)}
-          className="w-full p-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="input input-primary w-full"
         >
           <option value="group">Group by Folder</option>
           <option value="updated">Sort by Last Modified</option>
@@ -373,16 +389,20 @@ function DocumentItem({
   return (
     <div
       onClick={() => onSelect(doc)}
-      className={`group p-4 rounded-lg cursor-pointer transition-all mb-2 border ${
+      className={`card-interactive group p-4 rounded-lg cursor-pointer mb-2 transition-all duration-200 ${
         isSelected
-          ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 shadow-sm'
-          : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:shadow-sm'
+          ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 shadow-md ring-2 ring-blue-500/20'
+          : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-500'
       }`}
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2 mb-1">
-            <span className={`text-sm ${getStatusColor(doc.status)}`}>
+            <span className={`badge ${
+              doc.status === 'complete' ? 'badge-success' :
+              doc.status === 'in-progress' ? 'badge-primary' :
+              'badge-secondary'
+            }`}>
               {getStatusIcon(doc.status)}
             </span>
             <FileText className={`w-4 h-4 flex-shrink-0 ${
@@ -418,7 +438,7 @@ function DocumentItem({
             
             <button
               onClick={(e) => onDelete(doc.id, e)}
-              className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
+              className="opacity-0 group-hover:opacity-100 btn btn-ghost btn-sm p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
               title="Delete Sheet"
             >
               <Trash2 className="w-3 h-3" />

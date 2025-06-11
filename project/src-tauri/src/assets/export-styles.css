@@ -1,0 +1,113 @@
+/* Export Styles for HTML Documents */
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+    background-color: #fff;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    font-size: 2em;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: #2c3e50;
+}
+
+h3 {
+    font-size: 1.5em;
+    margin-top: 1.2em;
+    margin-bottom: 0.4em;
+    color: #34495e;
+}
+
+p {
+    margin-bottom: 1em;
+    text-align: justify;
+}
+
+strong {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 2em 0;
+}
+
+.metadata {
+    background-color: #f8f9fa;
+    padding: 1em;
+    border-left: 4px solid #007bff;
+    margin-bottom: 2em;
+}
+
+.beat-section {
+    margin-bottom: 2em;
+    padding: 1em;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+}
+
+.character-section {
+    background-color: #f1f3f4;
+    padding: 1em;
+    margin-bottom: 1em;
+    border-radius: 4px;
+}
+
+.document-section {
+    margin-bottom: 3em;
+    padding-bottom: 2em;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.notes-section {
+    background-color: #fff3cd;
+    padding: 1em;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 1em;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #6c757d;
+    color: white;
+    padding: 0.2em 0.5em;
+    margin-right: 0.5em;
+    border-radius: 3px;
+    font-size: 0.8em;
+}
+
+.word-count {
+    font-style: italic;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+@media print {
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    h1, h2, h3 {
+        page-break-after: avoid;
+    }
+    
+    .beat-section, .character-section, .document-section {
+        page-break-inside: avoid;
+    }
+}

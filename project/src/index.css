@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import './styles/design-system.css';
+
+/* Enhanced base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply antialiased text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-900;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variant-ligatures: common-ligatures;
+}
+
+/* Enhanced focus styles */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  @apply ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900;
+}
+
+/* Improved transitions for theme switching */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

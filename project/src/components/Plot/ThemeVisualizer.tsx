@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/hooks';
 import { Theme } from '../../contexts/AppContext';
 import { storageService } from '../../services';
+import { Sparkles, Eye, Trash2 } from 'lucide-react';
 
 interface ThemeVisualizerProps {
   projectId: string;
@@ -140,29 +141,33 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Theme Visualizer</h2>
-          <p className="text-gray-600 dark:text-gray-400">Track thematic elements throughout your story</p>
+      <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white rounded-xl p-6 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Theme Visualizer</h2>
+            <p className="text-emerald-50">Track thematic elements throughout your story</p>
+          </div>
+          <button
+            onClick={() => setIsAddingTheme(true)}
+            className="btn-primary shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+          >
+            <Sparkles className="w-5 h-5 mr-2" />
+            Add Theme
+          </button>
         </div>
-        <button
-          onClick={() => setIsAddingTheme(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Add Theme
-        </button>
       </div>
 
       {/* Add Theme Modal */}
       {isAddingTheme && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add New Theme</h3>
-          
+        <div className="card animate-slideUp">
+          <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-4 -mx-6 -mt-6 mb-6 rounded-t-lg">
+            <h3 className="text-lg font-semibold">Add New Theme</h3>
+          </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Theme Name
               </label>
               <input
@@ -170,19 +175,19 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
                 value={newThemeName}
                 onChange={(e) => setNewThemeName(e.target.value)}
                 placeholder="e.g., Redemption, Love conquers all, Power corrupts"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="input-primary"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Description
               </label>
               <textarea
                 value={newThemeDescription}
                 onChange={(e) => setNewThemeDescription(e.target.value)}
                 placeholder="Describe how this theme manifests in your story..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                className="input-primary resize-none"
                 rows={3}
               />
             </div>
@@ -192,8 +197,9 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
             <button
               onClick={createTheme}
               disabled={!newThemeName.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
+              <Sparkles className="w-4 h-4 mr-2" />
               Create Theme
             </button>
             <button
@@ -202,7 +208,7 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
                 setNewThemeName('');
                 setNewThemeDescription('');
               }}
-              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="btn-secondary"
             >
               Cancel
             </button>
@@ -212,14 +218,15 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
 
       {/* Theme Selection */}
       {themes.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Current Theme</h3>
+            <h3 className="text-lg font-semibold text-text-primary">Current Theme</h3>
             {selectedTheme && (
               <button
                 onClick={() => deleteTheme(selectedTheme.id)}
-                className="text-red-600 hover:text-red-700 text-sm transition-colors"
+                className="text-danger hover:text-danger-hover text-sm transition-colors flex items-center"
               >
+                <Trash2 className="w-4 h-4 mr-1" />
                 Delete Theme
               </button>
             )}
@@ -227,7 +234,7 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Select Theme
               </label>
               <select
@@ -236,7 +243,7 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
                   const theme = themes.find(t => t.id === e.target.value);
                   setSelectedTheme(theme || null);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="input-primary"
               >
                 {themes.map(theme => (
                   <option key={theme.id} value={theme.id}>
@@ -248,13 +255,13 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
 
             {selectedTheme && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-text-secondary mb-2">
                   Description
                 </label>
                 <textarea
                   value={selectedTheme.description}
                   onChange={(e) => updateTheme(selectedTheme.id, { description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                  className="input-primary resize-none"
                   rows={3}
                 />
               </div>
@@ -263,10 +270,13 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
 
           {selectedTheme && (
             <div className="mt-4 text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {selectedTheme.sceneIds.length}
+              <div className="inline-flex items-center px-4 py-2 bg-success-light text-success-dark rounded-full">
+                <Eye className="w-4 h-4 mr-2" />
+                <span className="text-2xl font-bold mr-2">
+                  {selectedTheme.sceneIds.length}
+                </span>
+                <span className="text-sm">scenes with theme</span>
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Scenes with theme</div>
             </div>
           )}
         </div>
@@ -274,8 +284,8 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
 
       {/* Scene Theme Mapping */}
       {selectedTheme && mockScenes.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="card">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">
             Theme Mapping: {selectedTheme.name}
           </h3>
 
@@ -289,8 +299,8 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
                   key={scene.id}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     isLinked 
-                      ? 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-600'
-                      : 'border-gray-200 dark:border-gray-600'
+                      ? 'border-success bg-success-light'
+                      : 'border-border-light dark:border-border-dark'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -301,13 +311,13 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
                             type="checkbox"
                             checked={isLinked}
                             onChange={() => toggleSceneTheme(scene.id)}
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                            className="rounded border-border-light text-success focus:ring-success"
                           />
-                          <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                          <span className="ml-2 font-medium text-text-primary">
                             {scene.title}
                           </span>
                         </label>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-text-secondary">
                           {scene.percentage}% • {scene.wordCount} words
                         </div>
                       </div>
@@ -315,7 +325,7 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
 
                     {isLinked && (
                       <div className="flex items-center gap-2">
-                        <label className="text-sm text-gray-600 dark:text-gray-400">
+                        <label className="text-sm text-text-secondary">
                           Intensity:
                         </label>
                         <input
@@ -324,9 +334,9 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
                           max="10"
                           value={intensity}
                           onChange={(e) => updateSceneIntensity(scene.id, parseInt(e.target.value))}
-                          className="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                          className="w-20 h-2 bg-surface-light rounded-lg appearance-none cursor-pointer dark:bg-surface-dark"
                         />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-6">
+                        <span className="text-sm font-medium text-text-primary w-6">
                           {intensity}
                         </span>
                       </div>
@@ -340,13 +350,13 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
       )}
 
       {/* Theme Visualization Placeholder */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Theme Distribution</h3>
-        <div className="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+      <div className="card">
+        <h3 className="text-lg font-semibold text-text-primary mb-4">Theme Distribution</h3>
+        <div className="h-64 flex items-center justify-center border-2 border-dashed border-border-light dark:border-border-dark rounded-lg">
           <div className="text-center">
-            <div className="text-gray-500 dark:text-gray-400 mb-2">Bubble Chart Visualization</div>
-            <p className="text-sm text-gray-400">Theme intensity across story progression</p>
-            <p className="text-xs text-gray-400 mt-2">
+            <div className="text-text-secondary mb-2">Bubble Chart Visualization</div>
+            <p className="text-sm text-text-secondary">Theme intensity across story progression</p>
+            <p className="text-xs text-text-secondary mt-2">
               Each bubble represents a scene with theme presence
             </p>
           </div>
@@ -355,15 +365,16 @@ export const ThemeVisualizer: React.FC<ThemeVisualizerProps> = ({ projectId }) =
 
       {/* Empty State */}
       {themes.length === 0 && !isAddingTheme && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700 text-center">
-          <div className="text-gray-500 dark:text-gray-400 mb-4">No themes defined yet</div>
-          <p className="text-sm text-gray-400 mb-6">
+        <div className="card text-center">
+          <div className="text-text-secondary mb-4">No themes defined yet</div>
+          <p className="text-sm text-text-secondary mb-6">
             Create themes to track how they develop throughout your story
           </p>
           <button
             onClick={() => setIsAddingTheme(true)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="btn-primary"
           >
+            <Sparkles className="w-4 h-4 mr-2" />
             Create Your First Theme
           </button>
         </div>

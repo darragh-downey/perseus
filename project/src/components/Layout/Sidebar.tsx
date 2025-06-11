@@ -19,6 +19,7 @@ import {
   Clock,
   Globe,
   Map,
+  Sparkles,
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -117,6 +118,9 @@ export default function Sidebar() {
         break;
       case 'plot':
         dispatch({ type: 'SET_CURRENT_VIEW', payload: 'plot' });
+        break;
+      case 'experimental':
+        dispatch({ type: 'SET_CURRENT_VIEW', payload: 'experimental' });
         break;
     }
   };
@@ -291,6 +295,23 @@ export default function Sidebar() {
                     {state.plotStructure ? '📋' : '—'}
                   </span>
                 </button>
+                
+                <button
+                  onClick={() => handleItemClick('experimental')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                    state.currentView === 'experimental'
+                      ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Experimental</span>
+                  </div>
+                  <span className="text-xs bg-purple-200 dark:bg-purple-600 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium">
+                    BETA
+                  </span>
+                </button>
               </div>
             </div>
           )}
@@ -359,10 +380,10 @@ export default function Sidebar() {
       </div>
 
       {/* Footer Actions */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
         <button
           onClick={handleCreateDocument}
-          className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+          className="btn btn-primary w-full"
         >
           <Plus className="w-4 h-4" />
           <span>New Sheet</span>
@@ -370,7 +391,7 @@ export default function Sidebar() {
         
         <button
           onClick={() => dispatch({ type: 'SET_CURRENT_VIEW', payload: 'settings' })}
-          className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+          className="btn btn-outline w-full"
         >
           <Settings className="w-4 h-4" />
           <span>Settings</span>
@@ -379,14 +400,20 @@ export default function Sidebar() {
 
       {/* Credits Info */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex justify-between items-center mb-1">
-            <span>AI Credits</span>
-            <span className="font-medium text-gray-700 dark:text-gray-300">{state.credits}</span>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-600 dark:text-gray-400">AI Credits</span>
+            <span className="font-semibold text-gray-900 dark:text-white">{state.credits}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span>Free queries</span>
-            <span className="font-medium text-gray-700 dark:text-gray-300">{state.freeQueriesLeft}/5</span>
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-600 dark:text-gray-400">Free queries</span>
+            <span className="font-semibold text-gray-900 dark:text-white">{state.freeQueriesLeft}/5</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+            <div 
+              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300" 
+              style={{ width: `${(state.freeQueriesLeft / 5) * 100}%` }}
+            ></div>
           </div>
         </div>
       </div>

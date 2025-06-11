@@ -6,7 +6,7 @@ import DocumentList from '../Editor/DocumentList';
 import WorkflowPanel from '../Editor/WorkflowPanel';
 import { storageService } from '../../services/storage';
 import { debounce } from '../../utils/debounce';
-import { PanelLeftOpen, PanelRightOpen } from 'lucide-react';
+import { PanelLeftOpen, PanelRightOpen, Users, Globe } from 'lucide-react';
 
 export default function WriteView() {
   const { state, dispatch } = useApp();

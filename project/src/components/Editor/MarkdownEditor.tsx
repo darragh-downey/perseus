@@ -98,16 +98,16 @@ export default function MarkdownEditor({
   };
 
   return (
-    <div className={`flex flex-col h-full ${isFullscreen ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900' : ''}`}>
+    <div className={`flex flex-col h-full animate-fade-in ${isFullscreen ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900' : ''}`}>
       {/* Toolbar */}
       {!isFocusMode && (
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700">
           <div className="flex-1 mr-4">
             <input
               type="text"
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
-              className="text-xl font-semibold bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 w-full"
+              className="text-xl font-semibold bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 w-full focus:ring-2 focus:ring-blue-500/20 rounded px-2 py-1 transition-all"
               placeholder="Untitled Sheet"
             />
           </div>
@@ -115,13 +115,13 @@ export default function MarkdownEditor({
           <div className="flex items-center space-x-2">
             {/* Progress Indicator */}
             {document.target && (
-              <div className="hidden sm:flex items-center space-x-2 mr-4">
+              <div className="hidden sm:flex items-center space-x-3 mr-4">
                 <div className={`text-sm font-medium ${getProgressColor()}`}>
                   {Math.round(getProgressPercentage())}%
                 </div>
-                <div className="w-16 bg-gray-200 dark:bg-gray-600 rounded-full h-1">
+                <div className="progress-bar w-16">
                   <div 
-                    className={`h-1 rounded-full transition-all duration-300 ${
+                    className={`progress-fill transition-all duration-300 ${
                       getProgressPercentage() >= 100 ? 'bg-green-500' :
                       getProgressPercentage() >= 75 ? 'bg-blue-500' :
                       getProgressPercentage() >= 50 ? 'bg-yellow-500' : 'bg-gray-400'
@@ -143,7 +143,7 @@ export default function MarkdownEditor({
             
             <button
               onClick={() => setIsFocusMode(true)}
-              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn btn-ghost btn-sm"
               title="Focus Mode (Escape to exit)"
             >
               <Focus className="w-5 h-5" />
@@ -151,10 +151,10 @@ export default function MarkdownEditor({
             
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`btn btn-sm transition-colors ${
                 showPreview
-                  ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'btn-primary'
+                  : 'btn-ghost'
               }`}
               title={showPreview ? 'Hide Preview' : 'Show Preview'}
             >
@@ -163,7 +163,7 @@ export default function MarkdownEditor({
             
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn btn-ghost btn-sm"
               title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             >
               {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
@@ -172,21 +172,21 @@ export default function MarkdownEditor({
             <div className="relative">
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="btn btn-ghost btn-sm"
               >
                 <MoreHorizontal className="w-5 h-5" />
               </button>
 
               {showSettings && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
+                <div className="absolute right-0 top-full mt-2 w-48 card border border-gray-200 dark:border-gray-700 shadow-lg z-10 animate-slide-up">
                   <div className="p-2">
-                    <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                    <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
                       Export as Markdown
                     </button>
-                    <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                    <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
                       Export as PDF
                     </button>
-                    <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                    <button className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
                       Word Count Statistics
                     </button>
                   </div>
@@ -292,29 +292,29 @@ export default function MarkdownEditor({
 
       {/* Status Bar */}
       {!isFocusMode && (
-        <div className="px-6 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center space-x-4">
-              <span>{wordCount} words</span>
+              <span className="font-medium">{wordCount} words</span>
               <span>{charCount} characters</span>
               {wordCount > 0 && <span>{getReadingTime()} min read</span>}
               {document.target && (
-                <span className={getProgressColor()}>
+                <span className={`font-medium ${getProgressColor()}`}>
                   Target: {document.target} words ({Math.round(getProgressPercentage())}%)
                 </span>
               )}
             </div>
             <div className="flex items-center space-x-4">
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                document.status === 'complete' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
-                document.status === 'in-progress' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' :
-                'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              <span className={`badge ${
+                document.status === 'complete' ? 'badge-success' :
+                document.status === 'in-progress' ? 'badge-primary' :
+                'badge-secondary'
               }`}>
                 {document.status === 'complete' ? '✓ Complete' :
                  document.status === 'in-progress' ? '◐ In Progress' :
                  '○ Draft'}
               </span>
-              <span>Auto-saved</span>
+              <span className="text-green-600 dark:text-green-400 font-medium">Auto-saved</span>
             </div>
           </div>
         </div>

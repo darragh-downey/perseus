@@ -87,33 +87,38 @@ export default function RelationshipForm({ onClose }: RelationshipFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="card shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Add Relationship
-          </h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">R</span>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Add Relationship
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="btn btn-ghost btn-sm"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Character Selection */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 From Character *
               </label>
               <select
                 value={formData.from}
                 onChange={(e) => setFormData(prev => ({ ...prev, from: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input input-primary w-full"
                 required
               >
                 <option value="">Select character</option>
@@ -125,14 +130,14 @@ export default function RelationshipForm({ onClose }: RelationshipFormProps) {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="form-group">
+              <label className="form-label">
                 To Character *
               </label>
               <select
                 value={formData.to}
                 onChange={(e) => setFormData(prev => ({ ...prev, to: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input input-primary w-full"
                 required
               >
                 <option value="">Select character</option>
@@ -149,21 +154,21 @@ export default function RelationshipForm({ onClose }: RelationshipFormProps) {
 
           {/* Relationship Preview */}
           {formData.from && formData.to && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-              <div className="text-sm text-blue-700 dark:text-blue-300">
+            <div className="card-sm bg-blue-50 dark:bg-blue-900/20 p-4 animate-slide-up">
+              <div className="text-sm text-blue-700 dark:text-blue-300 text-center">
                 <span className="font-medium">{getCharacterName(formData.from)}</span>
-                <span className="mx-2">→</span>
+                <span className="mx-3 text-lg">→</span>
                 <span className="font-medium">{getCharacterName(formData.to)}</span>
               </div>
             </div>
           )}
 
           {/* Relationship Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="form-group">
+            <label className="form-label">
               Relationship Type *
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {relationshipTypes.map((type) => {
                 const Icon = type.icon;
                 return (
@@ -171,15 +176,14 @@ export default function RelationshipForm({ onClose }: RelationshipFormProps) {
                     key={type.id}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, type: type.id }))}
-                    className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${
-                      
+                    className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all hover:scale-105 ${
                       formData.type === type.id
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-500/20'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                     }`}
                   >
                     <Icon 
-                      className="w-4 h-4" 
+                      className="w-5 h-5" 
                       style={{ color: type.color }}
                     />
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
@@ -192,56 +196,58 @@ export default function RelationshipForm({ onClose }: RelationshipFormProps) {
           </div>
 
           {/* Strength */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="form-group">
+            <label className="form-label">
               Relationship Strength: {formData.strength}% 
-              <span className={`ml-2 text-sm ${getStrengthColor(formData.strength)}`}>
+              <span className={`ml-2 text-sm font-medium ${getStrengthColor(formData.strength)}`}>
                 ({getStrengthLabel(formData.strength)})
               </span>
             </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={formData.strength}
-              onChange={(e) => setFormData(prev => ({ ...prev, strength: parseInt(e.target.value) }))}
-              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <span>Weak</span>
-              <span>Moderate</span>
-              <span>Strong</span>
-              <span>Very Strong</span>
+            <div className="mt-2">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={formData.strength}
+                onChange={(e) => setFormData(prev => ({ ...prev, strength: parseInt(e.target.value) }))}
+                className="slider w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                <span>Weak</span>
+                <span>Moderate</span>
+                <span>Strong</span>
+                <span>Very Strong</span>
+              </div>
             </div>
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="form-group">
+            <label className="form-label">
               Description
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
-              className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="textarea w-full"
               placeholder="Describe the nature of this relationship..."
             />
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn btn-outline"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!formData.from || !formData.to || !formData.type}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+              className="btn btn-primary"
             >
               Create Relationship
             </button>

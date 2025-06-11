@@ -267,7 +267,7 @@ export interface AppState {
   
   // UI state
   currentDocument: Document | null;
-  currentView: 'write' | 'characters' | 'world' | 'notes' | 'plot' | 'settings';
+  currentView: 'write' | 'characters' | 'world' | 'notes' | 'plot' | 'experimental' | 'settings';
   theme: 'light' | 'dark';
   credits: number;
   freeQueriesLeft: number;
@@ -345,7 +345,7 @@ type AppAction =
   | { type: 'ADD_B_STORY'; payload: BStory }
   | { type: 'UPDATE_B_STORY'; payload: BStory }
   | { type: 'DELETE_B_STORY'; payload: string }
-  | { type: 'SET_CURRENT_VIEW'; payload: 'write' | 'characters' | 'world' | 'notes' | 'plot' | 'settings' }
+  | { type: 'SET_CURRENT_VIEW'; payload: 'write' | 'characters' | 'world' | 'notes' | 'plot' | 'experimental' | 'settings' }
   | { type: 'SET_THEME'; payload: 'light' | 'dark' }
   | { type: 'SET_CREDITS'; payload: number }
   | { type: 'SET_FREE_QUERIES'; payload: number }

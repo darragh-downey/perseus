@@ -4,8 +4,9 @@ import { BeatSheetPlanner } from '../Plot/BeatSheetPlanner';
 import { CharacterArcTracker } from '../Plot/CharacterArcTracker';
 import { ThemeVisualizer } from '../Plot/ThemeVisualizer';
 import { ConflictTracker } from '../Plot/ConflictTracker';
+import { PlotAIAssistant } from '../Plot/PlotAIAssistant';
 
-type PlotTab = 'beats' | 'arcs' | 'themes' | 'conflicts';
+type PlotTab = 'beats' | 'arcs' | 'themes' | 'conflicts' | 'ai';
 
 export const PlotView: React.FC = () => {
   const { state } = useApp();
@@ -46,6 +47,12 @@ export const PlotView: React.FC = () => {
       name: 'Conflict & B-Stories',
       description: 'Stakes and subplots',
       icon: '⚔️'
+    },
+    {
+      id: 'ai' as PlotTab,
+      name: 'AI Assistant',
+      description: 'Smart suggestions',
+      icon: '🤖'
     }
   ];
 
@@ -61,6 +68,8 @@ export const PlotView: React.FC = () => {
         return <ThemeVisualizer projectId={state.currentProject.id} />;
       case 'conflicts':
         return <ConflictTracker projectId={state.currentProject.id} />;
+      case 'ai':
+        return <PlotAIAssistant />;
       default:
         return null;
     }

@@ -27,7 +27,7 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
     if (existingLocation) {
       setFormData({
         name: existingLocation.name,
-        type: existingLocation.type,
+        type: existingLocation.type as any,
         description: existingLocation.description || '',
         color: existingLocation.color || '#3b82f6',
         properties: { ...existingLocation.properties },
@@ -46,17 +46,17 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
       const locationData = {
         id: locationId || Date.now().toString(),
         name: formData.name.trim(),
-        type: formData.type,
+        type: formData.type as any,
         description: formData.description.trim(),
         color: formData.color,
         properties: formData.properties,
         connections: formData.connections,
+        bookId: state.currentBook?.id || '',
+        projectId: state.currentProject.id,
+        workspaceId: state.currentWorkspace?.id || '',
       };
 
-      await storageService.saveLocation({
-        ...locationData,
-        projectId: state.currentProject.id,
-      });
+      await storageService.saveLocation(locationData);
 
       if (isEditing) {
         dispatch({ type: 'UPDATE_LOCATION', payload: locationData });
@@ -118,18 +118,23 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
   const availableLocations = state.locations.filter(l => l.id !== locationId);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white dark:bg-surface-dark rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {isEditing ? 'Edit Location' : 'Add Location'}
-          </h2>
+        <div className="flex items-center justify-between p-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-t-lg">
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 rounded-lg p-2">
+              <MapPin className="w-6 h-6" />
+            </div>
+            <h2 className="text-xl font-semibold">
+              {isEditing ? 'Edit Location' : 'Add Location'}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -139,14 +144,14 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Name *
+              <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
+                Name <span className="text-accent-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-primary w-full"
                 placeholder="Location name"
                 required
               />
@@ -154,13 +159,13 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
 
             {/* Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Type *
+              <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
+                Type <span className="text-accent-500">*</span>
               </label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
-                className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-primary w-full"
                 required
               >
                 {locationTypes.map(type => (
@@ -174,35 +179,35 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
               Description
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
-              className="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="input-primary w-full resize-none"
               placeholder="Describe this location..."
             />
           </div>
 
           {/* Color */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
               <Palette className="w-4 h-4 inline mr-1" />
               Color
             </label>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <div className="flex flex-wrap gap-2">
                 {colorOptions.map(color => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, color }))}
-                    className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-105 ${
                       formData.color === color
-                        ? 'border-gray-900 dark:border-white scale-110'
-                        : 'border-gray-300 dark:border-gray-600 hover:scale-105'
+                        ? 'border-text-primary dark:border-text-primary-dark scale-110 shadow-lg'
+                        : 'border-border-light dark:border-border-dark'
                     }`}
                     style={{ backgroundColor: color }}
                   />
@@ -219,7 +224,7 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
 
           {/* Properties */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
               Properties
             </label>
             
@@ -229,16 +234,16 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
                 {Object.entries(formData.properties).map(([key, value]) => (
                   <div
                     key={key}
-                    className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 rounded-lg p-2"
+                    className="flex items-center justify-between bg-success-50 dark:bg-success-900/20 rounded-lg p-3 border border-success-200 dark:border-success-800"
                   >
                     <div className="text-sm">
-                      <span className="font-medium text-green-700 dark:text-green-300">{key}:</span>
-                      <span className="text-green-600 dark:text-green-400 ml-1">{String(value)}</span>
+                      <span className="font-medium text-success-700 dark:text-success-300">{key}:</span>
+                      <span className="text-success-600 dark:text-success-400 ml-1">{String(value)}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveProperty(key)}
-                      className="text-red-500 hover:text-red-700 p-1"
+                      className="text-danger-500 hover:text-danger-700 p-1 rounded transition-colors"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -254,20 +259,20 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
                 value={newProperty.key}
                 onChange={(e) => setNewProperty(prev => ({ ...prev, key: e.target.value }))}
                 placeholder="Property name"
-                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-secondary flex-1 text-sm"
               />
               <input
                 type="text"
                 value={newProperty.value}
                 onChange={(e) => setNewProperty(prev => ({ ...prev, value: e.target.value }))}
                 placeholder="Value"
-                className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-secondary flex-1 text-sm"
               />
               <button
                 type="button"
                 onClick={handleAddProperty}
                 disabled={!newProperty.key.trim() || !newProperty.value.trim()}
-                className="p-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors"
+                className="btn-primary p-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -277,53 +282,55 @@ export default function LocationForm({ onClose, locationId }: LocationFormProps)
           {/* Connections */}
           {availableLocations.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
                 <Link className="w-4 h-4 inline mr-1" />
                 Connected Locations
               </label>
-              <div className="max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+              <div className="max-h-40 overflow-y-auto border border-border-light dark:border-border-dark rounded-lg p-3 bg-surface-light dark:bg-surface-dark">
                 <div className="space-y-2">
                   {availableLocations.map(location => (
                     <label
                       key={location.id}
-                      className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
+                      className="flex items-center space-x-3 cursor-pointer hover:bg-surface-light dark:hover:bg-surface-dark p-2 rounded transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={formData.connections.includes(location.id)}
                         onChange={() => handleToggleConnection(location.id)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-border-light text-primary-600 focus:ring-primary-500"
                       />
                       <div
-                        className="w-6 h-6 rounded flex items-center justify-center text-white text-xs"
+                        className="w-6 h-6 rounded flex items-center justify-center text-white text-xs shadow-sm"
                         style={{ backgroundColor: location.color || '#3b82f6' }}
                       >
                         <MapPin className="w-3 h-3" />
                       </div>
-                      <span className="text-sm text-gray-900 dark:text-white">{location.name}</span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">({location.type})</span>
+                      <span className="text-sm text-text-primary dark:text-text-primary-dark font-medium">{location.name}</span>
+                      <span className="badge badge-secondary text-xs capitalize">
+                        {location.type}
+                      </span>
                     </label>
                   ))}
                 </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {formData.connections.length} location{formData.connections.length !== 1 ? 's' : ''} selected
+              <div className="text-xs text-text-secondary dark:text-text-secondary-dark mt-2">
+                {formData.connections.length} location{formData.connections.length !== 1 ? 's' : ''} connected
               </div>
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-border-light dark:border-border-dark">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="btn-ghost"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+              className="btn-primary"
             >
               {isEditing ? 'Update' : 'Create'} Location
             </button>
